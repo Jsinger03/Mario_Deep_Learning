@@ -32,7 +32,7 @@ def convert_observation_space(observation_space):
             dtype=observation_space.dtype
         )
 
-os.environ['DISPLAY'] = ':0'
+os.environ['DISPLAY'] = ':0' #change depending on if on local or on remote
 
 env = gym_super_mario_bros.make('SuperMarioBros-v2')
 env = unwrap_env(env)
@@ -47,10 +47,7 @@ env = CustomDummyVecEnv([lambda: env])  # Use CustomDummyVecEnv here
 env = CustomVecFrameStack(env, n_stack=4, channels_order='last')  # Use CustomVecFrameStack here
 env = CustomResetWrapper(env)
 
-#model = PPO.load("old_train_slower/best_model_50000.zip")
-#model = PPO.load("train/ppo_model_300000_steps.zip")
-#model = PPO.load("checkpoints/ppo_model_990000_steps.zip")
-model = PPO.load("colab_train/ppo_model_600000_steps.zip")
+model = PPO.load("training_folder/ppo_model_#_steps.zip")
 
 
 
