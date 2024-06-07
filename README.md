@@ -1,17 +1,24 @@
 For a long time I wanted to tackle creating a model to play a game, and with the help of ChatGPT4o I was finally able to accomplish it.
 
-To start, I initialized a context in GPT4o with "You are a programmer who specializes in ML, specifically deep learning through python and Gymnasium. You are experienced with debugging and upgradong environments from the old gym format to the new Gymnasium format"
 
-The first issue I encountered was the game environment uses gym, which is no longer maintained, and much of the nes-py code and the mario code which invokes it relies on gym, in a way which is incompatable with the new version, Gymnasium
+To start, I initialized a context in GPT4o with "You are a programmer who specializes in ML, specifically deep learning through python and Gymnasium. You are experienced with debugging and upgrading environments from the old gym format to the new Gymnasium format."
+
+
+The first issue I encountered was the game environment uses gym, which is no longer maintained, and much of the nes-py code and the mario code which invokes it relies on gym, in a way which is incompatable with the new version, Gymnasium.
 Gymnasium has built in wrappers for transforming the step and reset functions, but these were not working as intended.
-By having a conversation with GPT4o, I was able to debug and found that the initial creation of the game environment included calls to the old gym versions of several wrappers (specifically TineLimit)
+By having a conversation with GPT4o, I was able to debug and found that the initial creation of the game environment included calls to the old gym versions of several wrappers (specifically TineLimit).
 To address this, I returned to GPT4o and asked it if it could create for me a custom wrapper to remove other wrappers. With the output from this prompt, I was able to clear away the old wrappers and advance.
-I added several other wrappers to my environment from the ones available in Gymnasium, and I did encounter some issues which, when I presented the error log to GPT4o were quickly resolved (a recurring error was the issue of render_mode, which I set to human when runnign locally but required being set to None when running remotely on Google Colab)
-The prompt I used to generate the custom wrapper was "Create a wrapper which takes an environment and strips it back to just its first layer. This will be iterated upon to resolve any issues, include an explanation of how it works and the different elements used"
+I added several other wrappers to my environment from the ones available in Gymnasium, and I did encounter some issues which, when I presented the error log to GPT4o were quickly resolved (a recurring error was the issue of render_mode, which I set to human when runnign locally but required being set to None when running remotely on Google Colab).
+The prompt I used to generate the custom wrapper was "Create a wrapper which takes an environment and strips it back to just its first layer. This will be iterated upon to resolve any issues, include an explanation of how it works and the different elements used."
+
 
 The next set of errors came up in preprocessing. In this stage, I was adding additional wrappers not from Gymnasium to change the way my model would interpret the environment.
 When converting the observation space to grayscale, Gymnasium requires the type as Gymnasium.spaces.Box, however the mario space is gym.spaces.box.Box, so I asked GPT4o to make a helper function to convert it to the correct type.
+
+
 prompt: "Using the Gymnasium GrayScaleWrapper as a base, create a custom wrapper that addresses problematic behavior related to the difference between gym's gym.spaces.box.Box and Gymnasium's Gymnasium.spaces.Box"
+
+
 Another error occurred with the vectorizing wrapper. Using the DummyVectorization wrapper from stable_baselines3, the num_envs variable is missing, so I again asked GPT4o to design a wrapper to set that variable.
 prompt: "Create a wrapper which takes an environment with the layers we have added thus far and sets the num_envs variable"
 Once the DummyVecEnv wrapper was in place, I discovered that it's step functions were producing output that worked with the gym format expected from a step, but not Gymnasium's. This required me to ask GPT4o to create a custom version upgrading its step functions.
